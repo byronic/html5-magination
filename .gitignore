@@ -16,6 +16,11 @@ local.properties
 .settings/
 .loadpath
 
+########
+# Custom! _ ignore .jpg automatically
+########
+.jpg
+
 # External tool builders
 .externalToolBuilders/
 
