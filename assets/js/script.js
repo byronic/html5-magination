@@ -17,6 +17,9 @@ var url = 'http://localhost:8081'; // remember the port has to be changed here, 
 //
 //
 
+// the meat and potato -- you could think of this as main()
+//        and yes, you receive only one potato.
+//                                deal with it.
 $(function(){
 	
 	// Double-check we have canvas support
@@ -32,10 +35,18 @@ $(function(){
 	// the -45 is there for the footer offset
 	document.getElementById('canvas').height = (winH - 45);
 	document.getElementById('canvas').width = winW;
-
 	canvasHeight = winH - 45;
 	canvasWidth = winW;
-	alert ("canvasHeight " + canvasHeight + "\ncanvasWidth " + canvasWidth);
+	// finally, set an event trigger on resize to re-calculate stuff. Also needs to trigger a redraw of field
+	window.onresize = function() 
+	{ 
+		getWindowDimensions();
+		document.getElementById('canvas').height = (winH - 45);
+		document.getElementById('canvas').width = winW;
+		canvasHeight = winH - 45;
+		canvasWidth = winW;
+		//TODO: trigger a redraw
+	};
 	
 	var socket = io.connect(url);
 	
@@ -49,11 +60,10 @@ $(function(){
 		window.alert('My ID is ' + GUID);
 	}); 
 
-	// on client disconnect, alert
-	// TODO: remove the alert!
+	// activates on another client's disconnect
 	socket.on('clientDC', function(data)
 	{
-		// the data is just the other user's session ID
+		// 'data' is just the other user's session ID (integer)
 		// removed alert here; later use this to see if your game partner has disconnected
 	});
 
@@ -64,8 +74,7 @@ $(function(){
 	var testImage = new Image();
 	testImage.src = 'assets/img/testcard.jpg';
 	testImage.onload = function() { ctx.drawImage(testImage, 500, 500);  };
-	
-	alert("Testing " + canvasHeight + canvasWidth);
+
 	canvas.mousedown(function(e)
 	{
 		// don't respond to right-clicks, etc.
