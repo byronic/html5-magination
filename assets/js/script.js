@@ -11,6 +11,8 @@ var doc = $(document),
 var canvasHeight = 0;
 var canvasWidth = 0;
 var url = 'http://localhost:8081'; // remember the port has to be changed here, too, if changed in server.js
+var socket = io.connect(url); // connect to the server!
+var GUID = -1; // this client's globally unique identifier -- if -1, we haven't received from the server yet :(
 
 //
 //  FUNCTIONS
@@ -48,11 +50,7 @@ $(function(){
 		//TODO: trigger a redraw
 	};
 	
-	var socket = io.connect(url);
-	
 	// listen for my GUID!
-	var GUID = -1; // don't forget -- you must instantiate your variable immediately!!!!
-	
 	// server sends our GUID to us -- TODO: remove the alert!
 	socket.on('GUID', function(data) 
 	{
@@ -67,13 +65,13 @@ $(function(){
 		// removed alert here; later use this to see if your game partner has disconnected
 	});
 
-	// testing drawing a card in hand, and on the field.
-	// also tests clearing the screen.
-	// clicking should toggle back and forth
-	var inHand = true;
-	var testImage = new Image();
-	testImage.src = 'assets/img/testcard.jpg';
-	testImage.onload = function() { ctx.drawImage(testImage, 500, 500);  };
+	// now performing the same test, but with a sprite sheet.
+	// cycles through all of the available images (on the field) through clicking.
+	// also draws a 'hand' of all three cards.
+	var cardOnField = 0;
+	var testSheet = new Image();
+	testSheet.src = 'assets/img/testsheet.png';
+	testSheet.onload = function() { $('#instructions').fadeOut(5000); };
 
 	canvas.mousedown(function(e)
 	{
@@ -83,18 +81,10 @@ $(function(){
 		// clear canvas for drawing		
 		ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-		if(inHand)
-		{
-			//draw on the field, no scaling	
-			ctx.drawImage(testImage, 0, 0)
-			inHand = false;			
-		}
-		else
-		{
-			//draw in the hand, scale to 100px wide and 133 px tall
-			ctx.drawImage(testImage, 50, canvasHeight - 133, 100, 133);
-			inHand = true;
-		}
+		ctx.drawImage(testSheet, (cardOnField%3)*325, 0, 325, 455, 0, 0, 300, 400);
+		cardOnField++;
+		for(var i=0; i<3; i++)
+			ctx.drawImage(testSheet, i*325, 0, 325, 455, (i*100) + 350, canvasHeight-133, 100, 133);
 	});
 });
 
