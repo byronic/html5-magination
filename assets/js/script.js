@@ -1,5 +1,5 @@
 $(function(){
-	alert("right before!");
+	
 	// Double-check we have canvas support
 	if(!('getContext' in document.createElement('canvas'))){
 		alert('Sorry, it looks like your browser does not support canvas!');
@@ -16,9 +16,11 @@ $(function(){
 		//instructions = $('#instructions');
 	
 	var socket = io.connect(url);
-	alert("right after!");
+	
 	// listen for my GUID!
 	var GUID = -1; // don't forget -- you must instantiate your variable immediately!!!!
+	
+	// server sends our GUID to us -- TODO: remove the alert!
 	socket.on('GUID', function(data) 
 	{
 		GUID = data;
