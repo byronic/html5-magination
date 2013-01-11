@@ -4,6 +4,7 @@
 //
 
 var winW = 630, winH = 460;
+var maxCardsWidth = 1; // maximum horizontal card pixel width, based on window width minus 300 (for mouseover + menu), at standard 100px width
 var doc = $(document),
 		win = $(window),
 		canvas = $('#canvas'),
@@ -13,6 +14,48 @@ var canvasWidth = 0;
 var url = 'http://localhost:8081'; // remember the port has to be changed here, too, if changed in server.js
 var socket = io.connect(url); // connect to the server!
 var GUID = -1; // this client's globally unique identifier -- if -1, we haven't received from the server yet :(
+var spriteSheet = new Image(); // contains all cards in the database, sized at 325x455
+	// I hate doing this here, but doing the rest of spriteSheet initialization
+spriteSheet.src = 'assets/img/sheet.png';
+spriteSheet.onload = function() { $('#instructions').fadeOut(5000); };
+var hand = new Array();
+var deck = new Array();
+var myField = new Array();
+var oppField = new Array();
+var myMagi = new Array();
+var oppMagi = new Array();
+var myDiscard = new Array();
+var oppDiscard = new Array();
+
+
+//
+//
+//  INITIALIZE ALL THE ARRAYS!!!! all of them
+//
+//
+// note that these are not final array stylings
+hand.push({'img':0, 'maxEnergy':15, 'energy':15});
+hand.push({'img':1, 'maxEnergy':12, 'energy':12});
+hand.push({'img':2, 'maxEnergy':10, 'energy':10});
+hand.push({'img':0});
+hand.push({'img':1});
+hand.push({'img':2});
+hand.push({'img':0});
+hand.push({'img':1});
+hand.push({'img':2});
+hand.push({'img':0});
+hand.push({'img':1});
+hand.push({'img':2});
+hand.push({'img':0});
+hand.push({'img':1});
+hand.push({'img':2});
+hand.push({'img':0});
+hand.push({'img':1});
+hand.push({'img':2});
+hand.push({'img':0});
+hand.push({'img':1});
+hand.push({'img':2});
+
 
 //
 //  FUNCTIONS
@@ -51,11 +94,10 @@ $(function(){
 	};
 	
 	// listen for my GUID!
-	// server sends our GUID to us -- TODO: remove the alert!
+	// server sends our GUID to us -- store in GUID
 	socket.on('GUID', function(data) 
 	{
 		GUID = data;
-		window.alert('My ID is ' + GUID);
 	}); 
 
 	// activates on another client's disconnect
@@ -65,28 +107,48 @@ $(function(){
 		// removed alert here; later use this to see if your game partner has disconnected
 	});
 
-	// now performing the same test, but with a sprite sheet.
-	// cycles through all of the available images (on the field) through clicking.
-	// also draws a 'hand' of all three cards.
-	var cardOnField = 0;
-	var testSheet = new Image();
-	testSheet.src = 'assets/img/testsheet.png';
-	testSheet.onload = function() { $('#instructions').fadeOut(5000); };
+	// now performing a new test with the sprite sheet.
+	// now re-draws the field on-click
 
 	canvas.mousedown(function(e)
 	{
 		// don't respond to right-clicks, etc.
 		e.preventDefault();
 
-		// clear canvas for drawing		
-		ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-		ctx.drawImage(testSheet, (cardOnField%3)*325, 0, 325, 455, 0, 0, 300, 400);
-		cardOnField++;
-		for(var i=0; i<3; i++)
-			ctx.drawImage(testSheet, i*325, 0, 325, 455, (i*100) + 350, canvasHeight-133, 100, 133);
+		// redraw the entire screen
+		redraw();
 	});
 });
+
+// YOU BETTER BELIEVE IT. This redraws the whole dang screen, no exceptions.
+function redraw()
+{
+	// i is our iterative friend, we'll re-use him each loop
+	var i = 0;
+	// scale for calculating scales
+	var scaleW = 0; 
+	var scaleH = 0;	
+	// clear the canvas for drawing
+	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+	// TODO: refactor this as a generic function you can pass an array, x- and y-offset to
+	// draw the hand! first, calculate scalars if applicable
+	if(hand.length > Math.floor(maxCardsWidth/100))
+	{
+		alert("more than I can comfortably hold in hand!");
+		scaleW = Math.floor(maxCardsWidth/hand.length);
+		scaleH = Math.floor(scaleW*1.33);
+	}
+	else
+	{	// we don't have > max number of cards, so normal scale
+		scaleW = 100;
+		scaleH = 133;
+	}
+	for(i=0; i<hand.length; i++)
+	{
+		ctx.drawImage(spriteSheet, hand[i].img*325, 0, 325, 455, (i*scaleW) + 300, canvasHeight-scaleH, scaleW, scaleH);	
+	};
+};
 
 function getWindowDimensions()
 {
@@ -106,4 +168,7 @@ function getWindowDimensions()
 	 winH = window.innerHeight;
 	}
 	// this has completed getting the window height / width
+
+	// calculate max number of cards across the screen before scaling is forced
+	maxCardsWidth = winW - 300; 
 };
