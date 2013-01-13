@@ -5,19 +5,21 @@
 
 var winW = 630, winH = 460;
 var maxCardsWidth = 1; // maximum horizontal card pixel width, based on window width minus 300 (for mouseover + menu), at standard 100px width
-var doc = $(document),
-		win = $(window),
-		canvas = $('#canvas'),
-		ctx = canvas[0].getContext('2d');
+
+var doc = $(document);
+var win = $(window);
+var canvas = $('#canvas');
+var ctx = canvas[0].getContext('2d');
 var canvasHeight = 0;
 var canvasWidth = 0;
+
 var url = 'http://localhost:8081'; // remember the port has to be changed here, too, if changed in server.js
 var socket = io.connect(url); // connect to the server!
 var GUID = -1; // this client's globally unique identifier -- if -1, we haven't received from the server yet :(
 var spriteSheet = new Image(); // contains all cards in the database, sized at 325x455
 	// I hate doing this here, but doing the rest of spriteSheet initialization
 spriteSheet.src = 'assets/img/sheet.png';
-spriteSheet.onload = function() { $('#instructions').fadeOut(5000); };
+spriteSheet.onload = function() { $('#instructions').fadeOut(5000, redraw); };
 var hand = new Array();
 var deck = new Array();
 var myField = new Array();
@@ -34,21 +36,10 @@ var oppDiscard = new Array();
 //
 //
 // note that these are not final array stylings
+
 hand.push({'img':0, 'maxEnergy':15, 'energy':15});
 hand.push({'img':1, 'maxEnergy':12, 'energy':12});
 hand.push({'img':2, 'maxEnergy':10, 'energy':10});
-hand.push({'img':0});
-hand.push({'img':1});
-hand.push({'img':2});
-hand.push({'img':0});
-hand.push({'img':1});
-hand.push({'img':2});
-hand.push({'img':0});
-hand.push({'img':1});
-hand.push({'img':2});
-hand.push({'img':0});
-hand.push({'img':1});
-hand.push({'img':2});
 hand.push({'img':0});
 hand.push({'img':1});
 hand.push({'img':2});
@@ -82,6 +73,7 @@ $(function(){
 	document.getElementById('canvas').width = winW;
 	canvasHeight = winH - 45;
 	canvasWidth = winW;
+
 	// finally, set an event trigger on resize to re-calculate stuff. Also needs to trigger a redraw of field
 	window.onresize = function() 
 	{ 
@@ -90,7 +82,7 @@ $(function(){
 		document.getElementById('canvas').width = winW;
 		canvasHeight = winH - 45;
 		canvasWidth = winW;
-		//TODO: trigger a redraw
+		redraw();
 	};
 	
 	// listen for my GUID!
@@ -115,9 +107,11 @@ $(function(){
 		// don't respond to right-clicks, etc.
 		e.preventDefault();
 
-		// redraw the entire screen
+		// redraw the entire screen; TODO: is this necessary?
 		redraw();
 	});
+	
+	
 });
 
 // YOU BETTER BELIEVE IT. This redraws the whole dang screen, no exceptions.
@@ -135,7 +129,6 @@ function redraw()
 	// draw the hand! first, calculate scalars if applicable
 	if(hand.length > Math.floor(maxCardsWidth/100))
 	{
-		alert("more than I can comfortably hold in hand!");
 		scaleW = Math.floor(maxCardsWidth/hand.length);
 		scaleH = Math.floor(scaleW*1.33);
 	}
