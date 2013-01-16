@@ -36,6 +36,7 @@ var oppDiscard = new Array();
 //
 //
 // note that these are not final array stylings
+//    for the times when img = cardback, we need to make sure there is also a cID that can change it per rules
 
 hand.push({'img':0, 'maxEnergy':15, 'energy':15});
 hand.push({'img':1, 'maxEnergy':12, 'energy':12});
@@ -46,6 +47,25 @@ hand.push({'img':2});
 hand.push({'img':0});
 hand.push({'img':1});
 hand.push({'img':2});
+oppMagi.push({'img':0});
+oppMagi.push({'img':1});
+oppMagi.push({'img':2});
+myMagi.push({'img':0});
+myMagi.push({'img':1});
+myMagi.push({'img':2});
+oppField.push({'img':0});
+oppField.push({'img':1});
+oppField.push({'img':2});
+oppField.push({'img':0});
+oppField.push({'img':1});
+oppField.push({'img':2});
+myField.push({'img':0});
+myField.push({'img':1});
+myField.push({'img':2});
+myField.push({'img':0});
+myField.push({'img':1});
+myField.push({'img':2});
+myField.push({'img':2});
 
 
 //
@@ -117,8 +137,17 @@ $(function(){
 // YOU BETTER BELIEVE IT. This redraws the whole dang screen, no exceptions.
 function redraw()
 {
+	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+	// draw each aspect of the field.
+	drawArray(oppMagi, 300, 0, true);
+	drawArray(oppField, 300, 150, true);
+	drawArray(myField, 300, canvasHeight - 300, false);
+	drawArray(myMagi, 300, canvasHeight - 150, false);
+	drawArray(hand, 300, canvasHeight, false);	
+	
 	// i is our iterative friend, we'll re-use him each loop
-	var i = 0;
+	/*var i = 0;
 	// scale for calculating scales
 	var scaleW = 0; 
 	var scaleH = 0;	
@@ -140,7 +169,42 @@ function redraw()
 	for(i=0; i<hand.length; i++)
 	{
 		ctx.drawImage(spriteSheet, hand[i].img*325, 0, 325, 455, (i*scaleW) + 300, canvasHeight-scaleH, scaleW, scaleH);	
+	};*/
+};
+
+//
+// draw the passed array starting at the specified x/y
+//     NOTE THAT THIS DOES NOT CLEAR ANY PORTION OF THE SCREEN BEFORE DOING SO.
+//     ALSO NOTE that the y here is the BOTTOM of the card (this is due to scaling
+//   actually, we need to re-factor that since sometimes we are relative to the top, other times relative to bottom)!!!!
+///      now refactored: relativeToTop: if false, we're relative to bottom
+function drawArray(arr, x, y, relativeToTop)
+{
+	// scale for calculating scales
+	var scaleW = 100; 
+	var scaleH = 133;	
+
+	// re-calculate scalars if applicable
+	if(arr.length > Math.floor(maxCardsWidth/100))
+	{
+		scaleW = Math.floor(maxCardsWidth/arr.length);
+		scaleH = Math.floor(scaleW*1.33);
 	};
+	// draw the whole thing!
+	if(relativeToTop)
+	{
+		for(var i=0; i<arr.length; i++)
+		{
+			ctx.drawImage(spriteSheet, arr[i].img*325, 0, 325, 455, (i*scaleW) + x, y, scaleW, scaleH);	
+		}
+	}
+	else //relative to bottom!!!!
+	{
+		for(var i=0; i<arr.length; i++)
+		{
+			ctx.drawImage(spriteSheet, arr[i].img*325, 0, 325, 455, (i*scaleW) + x, y - scaleH, scaleW, scaleH);	
+		}
+	}
 };
 
 function getWindowDimensions()
