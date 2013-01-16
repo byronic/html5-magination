@@ -29,6 +29,8 @@ var oppMagi = new Array();
 var myDiscard = new Array();
 var oppDiscard = new Array();
 
+var oldCard = 0; // card that was previously moused over
+
 
 //
 //
@@ -47,12 +49,27 @@ hand.push({'img':2});
 hand.push({'img':0});
 hand.push({'img':1});
 hand.push({'img':2});
+hand.push({'img':0});
+hand.push({'img':1});
+hand.push({'img':2});
+hand.push({'img':0});
+hand.push({'img':1});
+hand.push({'img':2});
+hand.push({'img':0});
+hand.push({'img':1});
+hand.push({'img':2});
+hand.push({'img':0});
+hand.push({'img':1});
+hand.push({'img':2});
+hand.push({'img':0});
+hand.push({'img':1});
+hand.push({'img':2});
 oppMagi.push({'img':0});
 oppMagi.push({'img':1});
 oppMagi.push({'img':2});
-myMagi.push({'img':0});
 myMagi.push({'img':1});
-myMagi.push({'img':2});
+myMagi.push({'img':0});
+myMagi.push({'img':0});
 oppField.push({'img':0});
 oppField.push({'img':1});
 oppField.push({'img':2});
@@ -130,6 +147,80 @@ $(function(){
 		// redraw the entire screen; TODO: is this necessary?
 		redraw();
 	});
+
+	canvas.mousemove(function(event)
+	{
+		// for now, let's only check one of the areas
+		// remember that oldCard is the global variable we check against to avoid redrawing if possible
+		var mouseAt = 0;
+		var scaleW = 100; // default value
+		if(event.clientY > canvasHeight-133) // we could be moused over a card in the hand!
+		{
+			// calculate scalar, if applicable TODO: refactor this to hold the damned scalar in memory
+			if(hand.length > Math.floor(maxCardsWidth/100))
+				scaleW = Math.floor(maxCardsWidth/hand.length);
+			mouseAt = Math.floor((event.clientX - 300) / scaleW);
+			if(mouseAt >= 0 && mouseAt < hand.length)
+				if(hand[mouseAt].img != oldCard)
+					{
+						oldCard = mouseAt;
+						drawMousedOverCard(hand[mouseAt].img);
+					}
+		}
+		else if(event.clientY > canvasHeight-283 && event.clientY < canvasHeight - 150) // we could be moused over a card in myMagi!
+		{
+			// calculate scalar, if applicable TODO: refactor this to hold the damned scalar in memory
+			if(myMagi.length > Math.floor(maxCardsWidth/100))
+				scaleW = Math.floor(maxCardsWidth/myMagi.length);
+			mouseAt = Math.floor((event.clientX - 300) / scaleW);
+			if(mouseAt >= 0 && mouseAt < myMagi.length)
+				if(myMagi[mouseAt].img != oldCard)
+					{
+						oldCard = mouseAt;
+						drawMousedOverCard(myMagi[mouseAt].img);
+					}
+		}
+		else if(event.clientY > canvasHeight-433 && event.clientY < canvasHeight - 300) // we could be moused over a card in myField!
+		{
+			// calculate scalar, if applicable TODO: refactor this to hold the damned scalar in memory
+			if(myField.length > Math.floor(maxCardsWidth/100))
+				scaleW = Math.floor(maxCardsWidth/myField.length);
+			mouseAt = Math.floor((event.clientX - 300) / scaleW);
+			if(mouseAt >= 0 && mouseAt < myField.length)
+				if(myField[mouseAt].img != oldCard)
+					{
+					alert(newCard + " " + oldCard);
+						oldCard = mouseAt;
+						drawMousedOverCard(myField[mouseAt].img);
+					}
+		}
+		else if(event.clientY < 133) // we could be moused over a card in oppMagi!
+		{
+			// calculate scalar, if applicable TODO: refactor this to hold the damned scalar in memory
+			if(oppMagi.length > Math.floor(maxCardsWidth/100))
+				scaleW = Math.floor(maxCardsWidth/oppMagi.length);
+			mouseAt = Math.floor((event.clientX - 300) / scaleW);
+			if(mouseAt >= 0 && mouseAt < oppMagi.length)
+				if(oppMagi[mouseAt].img != oldCard)
+				{
+					oldCard = mouseAt;
+					drawMousedOverCard(oppMagi[mouseAt].img);
+				}
+		}
+		else if(event.clientY < 283 && event.clientY > 150) // we could be moused over a card in oppField!
+		{
+			// calculate scalar, if applicable TODO: refactor this to hold the damned scalar in memory
+			if(oppField.length > Math.floor(maxCardsWidth/100))
+				scaleW = Math.floor(maxCardsWidth/oppField.length);
+			mouseAt = Math.floor((event.clientX - 300) / scaleW);
+			if(mouseAt >= 0  && mouseAt < oppField.length)
+				if(oppField[mouseAt].img != oldCard)
+					{
+						oldCard = mouseAt;
+						drawMousedOverCard(oppField[mouseAt].img);
+					}
+		}
+	}); // end canvas.mousemove. FFS, can't we TODO: REFACTOR THE HELL OUT OF THIS? GET IT OUT OF MAIN.
 	
 	
 });
@@ -138,46 +229,24 @@ $(function(){
 function redraw()
 {
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+	
+	// TODO: this doesn't belong here.
+	drawMousedOverCard(0);
 
 	// draw each aspect of the field.
 	drawArray(oppMagi, 300, 0, true);
 	drawArray(oppField, 300, 150, true);
 	drawArray(myField, 300, canvasHeight - 300, false);
 	drawArray(myMagi, 300, canvasHeight - 150, false);
-	drawArray(hand, 300, canvasHeight, false);	
-	
-	// i is our iterative friend, we'll re-use him each loop
-	/*var i = 0;
-	// scale for calculating scales
-	var scaleW = 0; 
-	var scaleH = 0;	
-	// clear the canvas for drawing
-	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-	// TODO: refactor this as a generic function you can pass an array, x- and y-offset to
-	// draw the hand! first, calculate scalars if applicable
-	if(hand.length > Math.floor(maxCardsWidth/100))
-	{
-		scaleW = Math.floor(maxCardsWidth/hand.length);
-		scaleH = Math.floor(scaleW*1.33);
-	}
-	else
-	{	// we don't have > max number of cards, so normal scale
-		scaleW = 100;
-		scaleH = 133;
-	}
-	for(i=0; i<hand.length; i++)
-	{
-		ctx.drawImage(spriteSheet, hand[i].img*325, 0, 325, 455, (i*scaleW) + 300, canvasHeight-scaleH, scaleW, scaleH);	
-	};*/
+	drawArray(hand, 300, canvasHeight, false);
 };
 
 //
 // draw the passed array starting at the specified x/y
 //     NOTE THAT THIS DOES NOT CLEAR ANY PORTION OF THE SCREEN BEFORE DOING SO.
-//     ALSO NOTE that the y here is the BOTTOM of the card (this is due to scaling
-//   actually, we need to re-factor that since sometimes we are relative to the top, other times relative to bottom)!!!!
 ///      now refactored: relativeToTop: if false, we're relative to bottom
+//                                         When relative to bottom, y is the _bottom_ point of the card
+///                                         otherwise, y is top as normal.
 function drawArray(arr, x, y, relativeToTop)
 {
 	// scale for calculating scales
@@ -188,7 +257,7 @@ function drawArray(arr, x, y, relativeToTop)
 	if(arr.length > Math.floor(maxCardsWidth/100))
 	{
 		scaleW = Math.floor(maxCardsWidth/arr.length);
-		scaleH = Math.floor(scaleW*1.33);
+		//scaleH = Math.floor(scaleW*1.33); // taking this out to assist with mouseover, plus height scaling doesn't help
 	};
 	// draw the whole thing!
 	if(relativeToTop)
@@ -204,6 +273,30 @@ function drawArray(arr, x, y, relativeToTop)
 		{
 			ctx.drawImage(spriteSheet, arr[i].img*325, 0, 325, 455, (i*scaleW) + x, y - scaleH, scaleW, scaleH);	
 		}
+	}
+};
+
+function drawMousedOverCard(image)
+{
+	ctx.drawImage(spriteSheet, image*325, 0, 325, 455, 0, 0, 300, 400);
+};
+
+function mouseOverCard(event)
+{
+	alert('eh, steve!');
+	// for now, let's only check one of the areas
+	// remember that oldCard is the global variable we check against to avoid redrawing if possible
+	var newCard = 0;
+	var scaleW = 100; // default value
+	if(event.clientY > canvasHeight-133) // we could be moused over a card in the hand!
+	{
+		// calculate scalar, if applicable TODO: refactor this to hold the damned scalar in memory
+		if(hand.length > Math.floor(maxCardsWidth/100))
+			scaleW = Math.floor(maxCardsWidth/hand.length);
+		newCard = Math.floor((event.clientX - 300) / scaleW);
+		if(oldCard != newCard)
+			if(hand.length <= newCard)
+				drawMousedOverCard(hand[newCard].img);
 	}
 };
 
