@@ -68,8 +68,8 @@ oppMagi.push({'img':0});
 oppMagi.push({'img':1});
 oppMagi.push({'img':2});
 myMagi.push({'img':1});
-myMagi.push({'img':0});
-myMagi.push({'img':0});
+myMagi.push({'img':2});
+myMagi.push({'img':3});
 oppField.push({'img':0});
 oppField.push({'img':1});
 oppField.push({'img':2});
@@ -188,8 +188,7 @@ $(function(){
 			mouseAt = Math.floor((event.clientX - 300) / scaleW);
 			if(mouseAt >= 0 && mouseAt < myField.length)
 				if(myField[mouseAt].img != oldCard)
-					{
-					alert(newCard + " " + oldCard);
+					{ // a bad alert had been causing the problem here.
 						oldCard = mouseAt;
 						drawMousedOverCard(myField[mouseAt].img);
 					}
