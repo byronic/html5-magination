@@ -40,49 +40,49 @@ var oldCard = 0; // card that was previously moused over
 // note that these are not final array stylings
 //    for the times when img = cardback, we need to make sure there is also a cID that can change it per rules
 
-hand.push({'img':0, 'maxEnergy':15, 'energy':15});
-hand.push({'img':1, 'maxEnergy':12, 'energy':12});
-hand.push({'img':2, 'maxEnergy':10, 'energy':10});
-hand.push({'img':0});
-hand.push({'img':1});
-hand.push({'img':2});
-hand.push({'img':0});
-hand.push({'img':1});
-hand.push({'img':2});
-hand.push({'img':0});
-hand.push({'img':1});
-hand.push({'img':2});
-hand.push({'img':0});
-hand.push({'img':1});
-hand.push({'img':2});
-hand.push({'img':0});
-hand.push({'img':1});
-hand.push({'img':2});
-hand.push({'img':0});
-hand.push({'img':1});
-hand.push({'img':2});
-hand.push({'img':0});
-hand.push({'img':1});
-hand.push({'img':2});
-oppMagi.push({'img':0});
-oppMagi.push({'img':1});
-oppMagi.push({'img':2});
-myMagi.push({'img':1});
-myMagi.push({'img':2});
-myMagi.push({'img':3});
-oppField.push({'img':0});
-oppField.push({'img':1});
-oppField.push({'img':2});
-oppField.push({'img':0});
-oppField.push({'img':1});
-oppField.push({'img':2});
-myField.push({'img':0});
-myField.push({'img':1});
-myField.push({'img':2});
-myField.push({'img':0});
-myField.push({'img':1});
-myField.push({'img':2});
-myField.push({'img':2});
+hand.push({'img':0, 'energy':15});
+hand.push({'img':1, 'energy':12});
+hand.push({'img':2, 'energy':10});
+hand.push({'img':0, 'energy':15});
+hand.push({'img':1, 'energy':12});
+hand.push({'img':2, 'energy':10});
+hand.push({'img':0, 'energy':15});
+hand.push({'img':1, 'energy':12});
+hand.push({'img':2, 'energy':10});
+hand.push({'img':0, 'energy':15});
+hand.push({'img':1, 'energy':12});
+hand.push({'img':2, 'energy':10});
+hand.push({'img':0, 'energy':15});
+hand.push({'img':1, 'energy':12});
+hand.push({'img':2, 'energy':10});
+hand.push({'img':0, 'energy':15});
+hand.push({'img':1, 'energy':12});
+hand.push({'img':2, 'energy':10});
+hand.push({'img':0, 'energy':15});
+hand.push({'img':1, 'energy':12});
+hand.push({'img':2, 'energy':10});
+hand.push({'img':0, 'energy':15});
+hand.push({'img':1, 'energy':12});
+hand.push({'img':2, 'energy':10});
+oppMagi.push({'img':0, 'energy':15});
+oppMagi.push({'img':1, 'energy':12});
+oppMagi.push({'img':2, 'energy':10});
+myMagi.push({'img':1, 'energy':12});
+myMagi.push({'img':2, 'energy':10});
+myMagi.push({'img':3, 'energy':12});
+oppField.push({'img':0, 'energy':15});
+oppField.push({'img':1, 'energy':12});
+oppField.push({'img':2, 'energy':10});
+oppField.push({'img':0, 'energy':15});
+oppField.push({'img':1, 'energy':12});
+oppField.push({'img':2, 'energy':10});
+myField.push({'img':0, 'energy':15});
+myField.push({'img':1, 'energy':12});
+myField.push({'img':2, 'energy':10});
+myField.push({'img':0, 'energy':15});
+myField.push({'img':1, 'energy':12});
+myField.push({'img':2, 'energy':10});
+myField.push({'img':2, 'energy':10});
 
 
 //
@@ -111,7 +111,7 @@ $(function(){
 	canvasHeight = winH - 45;
 	canvasWidth = winW;
 
-	// finally, set an event trigger on resize to re-calculate stuff. Also needs to trigger a redraw of field
+	// finally, set an event trigger on resize to re-calculate stuff. Also triggers a redraw of field
 	window.onresize = function() 
 	{ 
 		getWindowDimensions();
@@ -136,21 +136,15 @@ $(function(){
 		// removed alert here; later use this to see if your game partner has disconnected
 	});
 
-	// now performing a new test with the sprite sheet.
-	// now re-draws the field on-click
-
 	canvas.mousedown(function(e)
 	{
 		// don't respond to right-clicks, etc.
 		e.preventDefault();
-
-		// redraw the entire screen; TODO: is this necessary?
-		redraw();
 	});
 
 	canvas.mousemove(function(event)
 	{
-		// for now, let's only check one of the areas
+		// checks each area the mouse could be over, and updates the drawn card as needed
 		// remember that oldCard is the global variable we check against to avoid redrawing if possible
 		var mouseAt = 0;
 		var scaleW = 100; // default value
@@ -164,7 +158,8 @@ $(function(){
 				if(hand[mouseAt].img != oldCard)
 					{
 						oldCard = mouseAt;
-						drawMousedOverCard(hand[mouseAt].img);
+						drawMousedOverCard(hand[mouseAt].img, hand[mouseAt].energy);
+						
 					}
 		}
 		else if(event.clientY > canvasHeight-283 && event.clientY < canvasHeight - 150) // we could be moused over a card in myMagi!
@@ -177,7 +172,7 @@ $(function(){
 				if(myMagi[mouseAt].img != oldCard)
 					{
 						oldCard = mouseAt;
-						drawMousedOverCard(myMagi[mouseAt].img);
+						drawMousedOverCard(myMagi[mouseAt].img, myMagi[mouseAt].energy);
 					}
 		}
 		else if(event.clientY > canvasHeight-433 && event.clientY < canvasHeight - 300) // we could be moused over a card in myField!
@@ -190,7 +185,7 @@ $(function(){
 				if(myField[mouseAt].img != oldCard)
 					{ // a bad alert had been causing the problem here.
 						oldCard = mouseAt;
-						drawMousedOverCard(myField[mouseAt].img);
+						drawMousedOverCard(myField[mouseAt].img, myField[mouseAt].energy);
 					}
 		}
 		else if(event.clientY < 133) // we could be moused over a card in oppMagi!
@@ -203,7 +198,7 @@ $(function(){
 				if(oppMagi[mouseAt].img != oldCard)
 				{
 					oldCard = mouseAt;
-					drawMousedOverCard(oppMagi[mouseAt].img);
+					drawMousedOverCard(oppMagi[mouseAt].img, oppMagi[mouseAt].energy);
 				}
 		}
 		else if(event.clientY < 283 && event.clientY > 150) // we could be moused over a card in oppField!
@@ -216,7 +211,7 @@ $(function(){
 				if(oppField[mouseAt].img != oldCard)
 					{
 						oldCard = mouseAt;
-						drawMousedOverCard(oppField[mouseAt].img);
+						drawMousedOverCard(oppField[mouseAt].img, oppField[mouseAt].energy);
 					}
 		}
 	}); // end canvas.mousemove. FFS, can't we TODO: REFACTOR THE HELL OUT OF THIS? GET IT OUT OF MAIN.
@@ -228,9 +223,6 @@ $(function(){
 function redraw()
 {
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-	
-	// TODO: this doesn't belong here.
-	drawMousedOverCard(0);
 
 	// draw each aspect of the field.
 	drawArray(oppMagi, 300, 0, true);
@@ -248,6 +240,11 @@ function redraw()
 ///                                         otherwise, y is top as normal.
 function drawArray(arr, x, y, relativeToTop)
 {
+	// set our font for drawing energy - it's very exciting
+	ctx.font="bold 36px sans-serif";
+	ctx.fillStyle="#FFFFFF";
+	ctx.strokeStyle="#000000";
+
 	// scale for calculating scales
 	var scaleW = 100; 
 	var scaleH = 133;	
@@ -258,45 +255,36 @@ function drawArray(arr, x, y, relativeToTop)
 		scaleW = Math.floor(maxCardsWidth/arr.length);
 		//scaleH = Math.floor(scaleW*1.33); // taking this out to assist with mouseover, plus height scaling doesn't help
 	};
-	// draw the whole thing!
+	// draw the whole thing -- image and energy!
 	if(relativeToTop)
 	{
 		for(var i=0; i<arr.length; i++)
 		{
-			ctx.drawImage(spriteSheet, arr[i].img*325, 0, 325, 455, (i*scaleW) + x, y, scaleW, scaleH);	
+			ctx.drawImage(spriteSheet, arr[i].img*325, 0, 325, 455, (i*scaleW) + x, y, scaleW, scaleH);
+			ctx.fillText(arr[i].energy, (i*scaleW) + x, y + 130);
+			ctx.strokeText(arr[i].energy, (i*scaleW) + x, y + 130);
 		}
 	}
-	else //relative to bottom!!!!
+	else //relative to bottom, draw card image and energy!!!!
 	{
 		for(var i=0; i<arr.length; i++)
 		{
-			ctx.drawImage(spriteSheet, arr[i].img*325, 0, 325, 455, (i*scaleW) + x, y - scaleH, scaleW, scaleH);	
+			ctx.drawImage(spriteSheet, arr[i].img*325, 0, 325, 455, (i*scaleW) + x, y - scaleH, scaleW, scaleH);
+			ctx.fillText(arr[i].energy, (i*scaleW) + x, y - scaleH + 130);
+			ctx.strokeText(arr[i].energy, (i*scaleW) + x, y - scaleH + 130);
 		}
 	}
 };
 
-function drawMousedOverCard(image)
+function drawMousedOverCard(image, nrg)
 {
 	ctx.drawImage(spriteSheet, image*325, 0, 325, 455, 0, 0, 300, 400);
-};
-
-function mouseOverCard(event)
-{
-	alert('eh, steve!');
-	// for now, let's only check one of the areas
-	// remember that oldCard is the global variable we check against to avoid redrawing if possible
-	var newCard = 0;
-	var scaleW = 100; // default value
-	if(event.clientY > canvasHeight-133) // we could be moused over a card in the hand!
-	{
-		// calculate scalar, if applicable TODO: refactor this to hold the damned scalar in memory
-		if(hand.length > Math.floor(maxCardsWidth/100))
-			scaleW = Math.floor(maxCardsWidth/hand.length);
-		newCard = Math.floor((event.clientX - 300) / scaleW);
-		if(oldCard != newCard)
-			if(hand.length <= newCard)
-				drawMousedOverCard(hand[newCard].img);
-	}
+	// draw the energy!
+	ctx.font="bold 36px sans-serif";
+	ctx.fillStyle="#FFFFFF";
+	ctx.strokeStyle="#000000";
+	ctx.fillText(nrg, 260, 375);
+	ctx.strokeText(nrg, 260, 375);
 };
 
 function getWindowDimensions()
